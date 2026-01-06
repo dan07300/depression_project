@@ -45,7 +45,26 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("用户名或密码错误");
         }
 
-        if (!BCrypt.checkpw(loginDTO.getPassword(), user.getPassword())) {
+        // 验证密码（兼容明文密码和BCrypt加密密码）
+        boolean passwordValid = false;
+        String storedPassword = user.getPassword();
+        
+        // 判断密码是否为BCrypt格式（BCrypt哈希以 $2a$, $2b$, $2y$ 等开头）
+        if (storedPassword != null && (storedPassword.startsWith("$2a$") || 
+            storedPassword.startsWith("$2b$") || storedPassword.startsWith("$2y$"))) {
+            // BCrypt格式，使用BCrypt验证
+            passwordValid = BCrypt.checkpw(loginDTO.getPassword(), storedPassword);
+        } else {
+            // 明文密码，直接比较（兼容旧数据）
+            passwordValid = loginDTO.getPassword().equals(storedPassword);
+            // 如果是明文密码验证成功，自动升级为BCrypt加密
+            if (passwordValid) {
+                user.setPassword(BCrypt.hashpw(loginDTO.getPassword(), BCrypt.gensalt()));
+                authorizationMapper.updateById(user);
+            }
+        }
+
+        if (!passwordValid) {
             throw new RuntimeException("用户名或密码错误");
         }
 
@@ -75,8 +94,20 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("用户不存在");
         }
 
-        // 验证旧密码
-        if (!BCrypt.checkpw(dto.getOldPassword(), user.getPassword())) {
+        // 验证旧密码（兼容明文密码和BCrypt加密密码）
+        String storedPassword = user.getPassword();
+        boolean oldPasswordValid = false;
+        
+        if (storedPassword != null && (storedPassword.startsWith("$2a$") || 
+            storedPassword.startsWith("$2b$") || storedPassword.startsWith("$2y$"))) {
+            // BCrypt格式，使用BCrypt验证
+            oldPasswordValid = BCrypt.checkpw(dto.getOldPassword(), storedPassword);
+        } else {
+            // 明文密码，直接比较
+            oldPasswordValid = dto.getOldPassword().equals(storedPassword);
+        }
+        
+        if (!oldPasswordValid) {
             throw new RuntimeException("旧密码错误");
         }
 

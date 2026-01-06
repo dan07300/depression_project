@@ -24,7 +24,12 @@ public class DashboardController {
     @ApiOperation(value = "获取首页统计数据", notes = "获取首页的统计数据和图表数据")
     @GetMapping
     public Result<DashboardVO> getDashboardData() {
-        DashboardVO data = dashboardService.getDashboardData();
-        return Result.success(data);
+        try {
+            DashboardVO data = dashboardService.getDashboardData();
+            return Result.success(data);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Result.error("获取统计数据失败: " + e.getMessage());
+        }
     }
 }

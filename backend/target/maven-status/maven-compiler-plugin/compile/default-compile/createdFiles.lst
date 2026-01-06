@@ -34,6 +34,7 @@ io\depression\dto\PatientTransferDTO.class
 io\depression\common\Result.class
 io\depression\dto\QuestionOptionDTO.class
 io\depression\service\HospitalService.class
+io\depression\config\SecurityConfig.class
 io\depression\mapper\ScaleQuestionOptionMapper.class
 io\depression\vo\HospitalVO.class
 io\depression\service\impl\PatientServiceImpl.class

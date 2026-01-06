@@ -1,5 +1,5 @@
 <template>
-  <component :is="linkProps(to).tag" v-bind="linkProps(to)">
+  <component :is="type" v-bind="linkProps(to)">
     <slot />
   </component>
 </template>
@@ -11,22 +11,34 @@ export default {
   props: {
     to: {
       type: String,
-      required: true
+      required: false, // 改成 false，允许为空
+      default: '/'     // 加上默认值
+    }
+  },
+  computed: {
+    isExternal() {
+      return isExternal(this.to)
+    },
+    type() {
+      if (this.isExternal) {
+        return 'a'
+      }
+      return 'router-link'
     }
   },
   methods: {
-    linkProps(url) {
-      if (isExternal(url)) {
+    // 这里就是你找不到的 methods，我们把它补上
+    linkProps(to) {
+      if (this.isExternal) {
         return {
-          tag: 'a',
-          href: url,
+          href: to,
           target: '_blank',
           rel: 'noopener'
         }
       }
       return {
-        tag: 'router-link',
-        to: url
+        // 如果 to 是空的，就给它一个斜杠 '/'，这样就不会报错了
+        to: to || '/'
       }
     }
   }

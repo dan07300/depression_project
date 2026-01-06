@@ -1,0 +1,17 @@
+.sidebar-container {
+  .el-menu {
+    border: none;
+    height: 100%;
+    width: 100% !important;
+  }
+}
+
+.el-menu--vertical {
+  .el-menu-item {
+    height: 50px;
+    line-height: 50px;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.06) !important;
+    }
+  }
+}

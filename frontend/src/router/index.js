@@ -142,13 +142,12 @@ export const constantRoutes = [
         path: '/profile',
         component: Layout,
         redirect: '/profile/index',
-        hidden: true,
         children: [
             {
                 path: 'index',
                 name: 'Profile',
                 component: () => import('@/views/profile/index'),
-                meta: { title: '个人信息', icon: 'el-icon-setting' }
+                meta: { title: '个人信息', icon: 'el-icon-user-solid' }
             }
         ]
     },

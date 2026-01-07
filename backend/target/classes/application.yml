@@ -6,7 +6,7 @@ spring:
     url: jdbc:mysql://localhost:3306/drp_system?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimeZone=GMT%2B8&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: 123456
+    password: 8963257
   servlet:
     multipart:
       max-file-size: 100MB

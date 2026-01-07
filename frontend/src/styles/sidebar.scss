@@ -1,17 +1,112 @@
+// src/styles/sidebar.scss
+// 基础容器样式
 .sidebar-container {
+  width: 210px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1001;
+  transition: width 0.28s ease;
+  background-color: #2b3f56; // 和 Logo 背景色一致
+  overflow: hidden;
+
+  // 核心：将 el-menu 样式嵌套在容器内，提升优先级
   .el-menu {
     border: none;
     height: 100%;
     width: 100% !important;
+    background-color: transparent; // 继承侧边栏背景色
+
+    // 覆盖菜单所有文字的默认颜色（核心修复）
+    * {
+      color: #fff !important;
+    }
+
+    // 垂直菜单子项
+    .el-menu-item {
+      height: 50px;
+      line-height: 50px;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.06) !important;
+        color: #fff !important; // 再次强调 hover 时文字色
+      }
+      // 选中态样式
+      &.is-active {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: #409eff !important; // 选中时文字变蓝色
+      }
+    }
+
+    // 子菜单标题
+    .el-submenu__title {
+      height: 50px;
+      line-height: 50px;
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.06) !important;
+        color: #fff !important;
+      }
+    }
+
+    // 补充：子菜单展开后的选项样式
+    .el-submenu .el-menu-item {
+      padding-left: 40px !important; // 子项缩进
+      &:hover {
+        color: #fff !important;
+      }
+    }
+
+    // 补充：禁用状态的文字色
+    .el-menu-item.is-disabled {
+      color: rgba(255, 255, 255, 0.5) !important;
+    }
   }
 }
 
-.el-menu--vertical {
-  .el-menu-item {
-    height: 50px;
-    line-height: 50px;
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.06) !important;
-    }
+// Layout 容器适配（核心：和 Layout/index.vue 的 classObj 联动）
+.app-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+
+  // 侧边栏收起时
+  &.hideSidebar .sidebar-container {
+    width: 0;
+    visibility: hidden; // 防止收起后仍可点击
   }
+
+  // 侧边栏展开时
+  &.openSidebar .sidebar-container {
+    width: 210px;
+    visibility: visible;
+  }
+
+  // 移动端适配
+  &.mobile.openSidebar {
+    position: fixed;
+    top: 0;
+  }
+
+  // 主内容区适配（侧边栏展开/收起时偏移）
+  .main-container {
+    margin-left: 210px;
+    transition: margin-left 0.28s ease;
+    min-height: 100vh;
+  }
+
+  // 侧边栏收起时，主内容区占满宽度
+  &.hideSidebar .main-container {
+    margin-left: 0;
+  }
+}
+
+// 移动端遮罩层（已有，补充层级）
+.drawer-bg {
+  background: #000;
+  opacity: 0.3;
+  width: 100%;
+  top: 0;
+  height: 100%;
+  position: absolute;
+  z-index: 999; // 低于 sidebar-container 的 1001
 }

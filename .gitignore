@@ -1,15 +1,158 @@
+# ========================================
+# 操作系统文件
+# ========================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
 .DS_Store
-frontend/node_modules
-/dist
+.AppleDouble
+._*
+.Spotlight-V100
+.Trashes
+
+# Linux
+*~
+.fuse_hidden*
+
+# ========================================
+# 日志文件
+# ========================================
+# 各种日志文件
+*.log
+*.log.*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# 日志目录
+logs/
+log/
+*.log
+
+# 运行时日志
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ========================================
+# VSCode 相关
+# ========================================
+.vs/
+.vscode/
+*.code-workspace
+.history/
+*.vsix
+
+# 不忽略 VSCode 项目设置（可选）
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+# !.vscode/extensions.json
+
+# ========================================
+# IntelliJ IDEA / WebStorm 相关
+# ========================================
+.idea/
+*.iml
+*.iws
+out/
+# 保持代码样式配置（可选）
+# !.idea/codeStyles/
+# !.idea/codeStyles/codeStyleConfig.xml
+
+# ========================================
+# 构建输出和依赖
+# ========================================
+# Node.js
+node_modules/
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.venv
+env/
+venv/
+
+# Java
+target/
+*.class
+*.jar
+*.war
+
+# .NET
+bin/
+obj/
+*.exe
+
+# Go
+/bin/
+/pkg/
+
+# ========================================
+# 环境配置文件
+# ========================================
+.env
+.env.local
+.env.*.local
+*.env
+
+# ========================================
+# 数据库文件
+# ========================================
+*.sqlite
+*.db
+*.sqlite3
+
+# ========================================
+# 临时文件
+# ========================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ========================================
+# 其他工具
+# ========================================
+# npm/yarn/pnpm
+.npm
+.npmrc
+.yarn-integrity
+.pnp
+.pnp.js
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# Docker
+.dockerignore
+
+# Vagrant
+.vagrant/
+
+# 编辑器备份
+*.bak
+*.backup
+
+# SASS/LESS
+.sass-cache/
+
+# 其他
+*.tgz
+*.tar.gz

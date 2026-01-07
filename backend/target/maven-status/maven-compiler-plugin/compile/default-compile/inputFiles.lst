@@ -27,6 +27,7 @@ D:\documents\downloads\carbon_fiber_defect_detection\depression_project\backend\
 D:\documents\downloads\carbon_fiber_defect_detection\depression_project\backend\src\main\java\io\depression\dto\PasswordChangeDTO.java
 D:\documents\downloads\carbon_fiber_defect_detection\depression_project\backend\src\main\java\io\depression\entity\ScaleQuestion.java
 D:\documents\downloads\carbon_fiber_defect_detection\depression_project\backend\src\main\java\io\depression\vo\HospitalVO.java
+D:\documents\downloads\carbon_fiber_defect_detection\depression_project\backend\src\main\java\io\depression\config\SecurityConfig.java
 D:\documents\downloads\carbon_fiber_defect_detection\depression_project\backend\src\main\java\io\depression\dto\QuestionOptionDTO.java
 D:\documents\downloads\carbon_fiber_defect_detection\depression_project\backend\src\main\java\io\depression\dto\PatientQueryDTO.java
 D:\documents\downloads\carbon_fiber_defect_detection\depression_project\backend\src\main\java\io\depression\dto\LoginDTO.java

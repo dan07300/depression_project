@@ -134,6 +134,7 @@ export default {
             name: '风险等级',
             type: 'pie',
             radius: ['40%', '70%'],
+            center: ['55%', '50%'],
             avoidLabelOverlap: false,
             itemStyle: {
               borderRadius: 10,

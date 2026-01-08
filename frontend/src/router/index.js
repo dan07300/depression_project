@@ -135,20 +135,32 @@ export const constantRoutes = [
             }
         ]
     },
-
+    //AI智能助手
+{
+    path: '/ai',
+    component: Layout,
+    redirect: '/ai/index',
+    children: [
+      {
+        path: 'index',
+        name: 'ai',
+        component: () => import('@/views/ai/index'), // 对应你的view组件路径
+        meta: { title: 'AI智能助手', icon: 'el-icon-robot' } // 菜单名称+图标
+      }
+    ]
+  },
     // --- 修复结束 ---
 
     {
         path: '/profile',
         component: Layout,
         redirect: '/profile/index',
-        hidden: true,
         children: [
             {
                 path: 'index',
                 name: 'Profile',
                 component: () => import('@/views/profile/index'),
-                meta: { title: '个人信息', icon: 'el-icon-setting' }
+                meta: { title: '个人信息', icon: 'el-icon-user-solid' }
             }
         ]
     },

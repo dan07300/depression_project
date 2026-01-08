@@ -135,7 +135,20 @@ export const constantRoutes = [
             }
         ]
     },
-
+    //AI智能助手
+{
+    path: '/ai',
+    component: Layout,
+    redirect: '/ai/index',
+    children: [
+      {
+        path: 'index',
+        name: 'ai',
+        component: () => import('@/views/ai/index'), // 对应你的view组件路径
+        meta: { title: 'AI智能助手', icon: 'el-icon-robot' } // 菜单名称+图标
+      }
+    ]
+  },
     // --- 修复结束 ---
 
     {

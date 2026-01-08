@@ -1,13 +1,9 @@
 <template>
   <div class="sidebar-logo-container" :class="{'collapse':collapse}">
-    <transition name="sidebarLogoFade">
-      <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <span class="sidebar-title">心理健康平台</span>
-      </router-link>
-      <router-link v-else key="expand" class="sidebar-logo-link" to="/">
-        <span class="sidebar-title">心理健康平台</span>
-      </router-link>
-    </transition>
+    <router-link class="sidebar-logo-link" to="/">
+      <span class="bulb-icon">💡</span>
+      <span class="sidebar-title">心理健康平台</span>
+    </router-link>
   </div>
 </template>
 
@@ -24,15 +20,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.sidebarLogoFade-enter-active {
-  transition: opacity 1.5s;
-}
-
-.sidebarLogoFade-enter,
-.sidebarLogoFade-leave-to {
-  opacity: 0;
-}
-
 .sidebar-logo-container {
   position: relative;
   width: 100%;
@@ -40,7 +27,7 @@ export default {
   line-height: 50px;
   background: #2b3f56;
   text-align: center;
-  overflow: hidden;
+  overflow: visible; /* 取消溢出隐藏，避免图标被裁 */
 
   & .sidebar-logo-link {
     height: 100%;
@@ -48,18 +35,27 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0 10px;
+
+    /* 灯泡图标：强制显示 + 样式强化 */
+    & .bulb-icon {
+      font-size: 18px !important; 
+      color: #ffd04b !important; /* 黄色，确保醒目 */
+      margin-right: 8px !important;
+      visibility: visible !important;
+    }
 
     & .sidebar-title {
       color: #fff;
       font-weight: 600;
       font-size: 16px;
-      white-space: nowrap;
     }
   }
 
+  /* 折叠态仅调整宽度，不隐藏内容 */
   &.collapse {
     .sidebar-logo-link {
-      padding: 0 10px;
+      width: 100%;
     }
   }
 }

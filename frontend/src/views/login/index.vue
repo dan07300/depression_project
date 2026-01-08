@@ -235,12 +235,23 @@ export default {
       })
     },
     // 原有登录方法（未修改）
+// 原有登录方法（修改后）
     handleLogin() {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
+          // 1. 执行登录
           this.$store.dispatch('user/login', this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || '/' })
+            // 2. 登录成功后，立即拉取用户信息（新增关键代码）
+            this.$store.dispatch('user/getInfo').then(() => {
+              // 3. 拉取信息成功后再跳转
+
+              this.$router.push({ path: this.redirect || '/' })
+            }).catch(() => {
+              // 拉取信息失败的兜底处理
+              this.$message.error('获取用户信息失败，请重新登录')
+              this.loading = false
+            })
             this.loading = false
           }).catch(() => {
             this.loading = false

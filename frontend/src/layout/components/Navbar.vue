@@ -8,7 +8,8 @@
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
           <i class="el-icon-user-solid"></i>
-          <span class="user-name">{{ name || '系统管理员' }}</span>
+          <!-- 关键修改：读取 user 模块的 realName（对应“张院长”） -->
+          <span class="user-name">{{ $store.state.user.realName || '系统管理员' }}</span>
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -36,8 +37,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'sidebar',
-      'name'
+      'sidebar'
     ])
   },
   methods: {

@@ -3,6 +3,7 @@ package io.depression.controller;
 import io.depression.common.Result;
 import io.depression.dto.PatientCreateDTO;
 import io.depression.dto.PatientQueryDTO;
+import io.depression.dto.PatientTransferDTO;
 import io.depression.dto.PatientUpdateDTO;
 import io.depression.service.PatientService;
 import io.depression.vo.PageVO;
@@ -14,14 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-/**
- * <p>
- * 患者表 前端控制器
- * </p>
- *
- * @author system
- * @since 2025-01-01
- */
 @Api(tags = "患者管理")
 @RestController
 @RequestMapping("/api/patients")
@@ -37,9 +30,10 @@ public class PatientController {
         return Result.success(page);
     }
 
-    @ApiOperation(value = "获取患者详情", notes = "根据ID获取患者详情")
+    // --- 修改：Long id 改为 String id ---
+    @ApiOperation(value = "获取患者详情", notes = "根据ID Card获取患者详情")
     @GetMapping("/{id}")
-    public Result<PatientVO> getById(@PathVariable Long id) {
+    public Result<PatientVO> getById(@PathVariable String id) {
         PatientVO patient = patientService.getPatientById(id);
         if (patient == null) {
             return Result.error("患者不存在");
@@ -58,11 +52,12 @@ public class PatientController {
         }
     }
 
+    // --- 修改：Long id 改为 String id ---
     @ApiOperation(value = "更新患者", notes = "更新患者信息")
     @PutMapping("/{id}")
-    public Result<PatientVO> update(@PathVariable Long id, @Valid @RequestBody PatientUpdateDTO dto) {
+    public Result<PatientVO> update(@PathVariable String id, @Valid @RequestBody PatientUpdateDTO dto) {
         try {
-            dto.setId(id);
+            dto.setIdCard(id); // 设置 ID Card
             PatientVO patient = patientService.updatePatient(dto);
             return Result.success("更新成功", patient);
         } catch (Exception e) {
@@ -70,9 +65,10 @@ public class PatientController {
         }
     }
 
+    // --- 修改：Long id 改为 String id ---
     @ApiOperation(value = "删除患者", notes = "逻辑删除患者")
     @DeleteMapping("/{id}")
-    public Result<String> delete(@PathVariable Long id) {
+    public Result<String> delete(@PathVariable String id) {
         try {
             boolean success = patientService.deletePatient(id);
             if (success) {
@@ -85,18 +81,16 @@ public class PatientController {
         }
     }
 
+    // --- 修改：Long id 改为 String id ---
     @ApiOperation(value = "患者迁移", notes = "将患者迁移到其他医院或医生")
     @PostMapping("/{id}/transfer")
-    public Result<PatientVO> transfer(@PathVariable Long id, @RequestBody io.depression.dto.PatientTransferDTO dto) {
+    public Result<PatientVO> transfer(@PathVariable String id, @RequestBody PatientTransferDTO dto) {
         try {
-            dto.setPatientId(id);
-            PatientVO patient = patientService.transferPatient(dto.getPatientId(), dto.getTargetCohortCode(), dto.getTargetDoctorId());
+            dto.setIdCard(id);
+            PatientVO patient = patientService.transferPatient(dto.getIdCard(), dto.getTargetCohortCode(), dto.getTargetDoctorId());
             return Result.success("迁移成功", patient);
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }
     }
 }
-
-
-

@@ -229,6 +229,28 @@ CREATE TABLE `sys_dict_data` (
     KEY `idx_dict_type` (`dict_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='字典数据表';
 
+DROP TABLE IF EXISTS `warning_records`;
+CREATE TABLE `warning_records` (
+                                   `id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+                                   `user_id` BIGINT(20) DEFAULT NULL COMMENT '用户ID（患者ID）',
+                                   `id_card` VARCHAR(20) DEFAULT NULL COMMENT '患者身份证号',
+                                   `warning_level` TINYINT(1) DEFAULT NULL COMMENT '预警等级：1-低风险 2-中风险 3-高风险',
+                                   `risk_score` DECIMAL(10,2) DEFAULT NULL COMMENT '风险评分',
+                                   `warning_reason` TEXT DEFAULT NULL COMMENT '预警原因',
+                                   `suggestion` TEXT DEFAULT NULL COMMENT '建议',
+                                   `process_status` TINYINT(1) DEFAULT 0 COMMENT '处理状态：0-未处理 1-处理中 2-已处理',
+                                   `processor_id` BIGINT(20) DEFAULT NULL COMMENT '处理人ID',
+                                   `process_time` DATETIME DEFAULT NULL COMMENT '处理时间',
+                                   `process_remark` VARCHAR(500) DEFAULT NULL COMMENT '处理备注',
+                                   `deleted` TINYINT(1) DEFAULT 0 COMMENT '逻辑删除：0-未删除 1-已删除',
+                                   `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+                                   `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+                                   PRIMARY KEY (`id`),
+                                   KEY `idx_user_id` (`user_id`),
+                                   KEY `idx_id_card` (`id_card`),
+                                   KEY `idx_process_status` (`process_status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='预警记录表';
+
 -- ====================================================================
 -- 初始数据插入
 -- ====================================================================

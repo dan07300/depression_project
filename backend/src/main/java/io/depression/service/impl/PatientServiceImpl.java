@@ -30,9 +30,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * 患者服务实现
- */
 @Service
 public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> implements PatientService {
 
@@ -57,11 +54,11 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
                 .eq(queryDTO.getStatus() != null, Patient::getStatus, queryDTO.getStatus())
                 .eq(queryDTO.getIsRelapsed() != null, Patient::getIsRelapsed, queryDTO.getIsRelapsed())
                 .orderByDesc(Patient::getEnrollDate)
-                .orderByDesc(Patient::getId);
+                .orderByDesc(Patient::getCreateTime); // id 没了，改用 createTime 排序
         this.page(page, wrapper);
 
         List<Patient> records = page.getRecords();
-        
+
         Map<String, CohortCenter> centerMap = Collections.emptyMap();
         Map<Long, CohortAuthorization> doctorMap = Collections.emptyMap();
 
@@ -94,8 +91,8 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
     }
 
     @Override
-    public PatientVO getPatientById(Long id) {
-        Patient patient = this.getById(id);
+    public PatientVO getPatientById(String idCard) {
+        Patient patient = this.getById(idCard); // MyBatis Plus 会根据 @TableId 用 String 查
         if (patient == null) {
             return null;
         }
@@ -113,10 +110,11 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PatientVO createPatient(PatientCreateDTO dto) {
+        // 创建时 idCard 是必填的
         validatePatientUniqueness(dto.getIdCard(), dto.getUsername(), dto.getPatientCode());
 
         Patient patient = new Patient();
-        patient.setIdCard(dto.getIdCard());
+        patient.setIdCard(dto.getIdCard()); // 手动设置 ID
         patient.setUsername(dto.getUsername());
         patient.setPassword(BCrypt.hashpw(dto.getPassword(), BCrypt.gensalt()));
         patient.setPatientName(dto.getPatientName());
@@ -139,46 +137,44 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
         patient.setEpisodeCount(1);
         this.save(patient);
 
-        return getPatientById(patient.getId());
+        return getPatientById(patient.getIdCard());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PatientVO updatePatient(PatientUpdateDTO dto) {
-        Patient patient = this.getById(dto.getId());
+        Patient patient = this.getById(dto.getIdCard());
         if (patient == null) {
             throw new IllegalArgumentException("患者不存在");
         }
         BeanUtils.copyProperties(dto, patient, getNullPropertyNames(dto));
         this.updateById(patient);
-        return getPatientById(patient.getId());
+        return getPatientById(patient.getIdCard());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean deletePatient(Long id) {
-        Patient patient = this.getById(id);
+    public boolean deletePatient(String idCard) {
+        Patient patient = this.getById(idCard);
         if (patient == null) {
             throw new IllegalArgumentException("患者不存在");
         }
-        return this.removeById(id);
+        return this.removeById(idCard);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public PatientVO transferPatient(Long patientId, String targetCohortCode, Long targetDoctorId) {
-        Patient patient = this.getById(patientId);
+    public PatientVO transferPatient(String idCard, String targetCohortCode, Long targetDoctorId) {
+        Patient patient = this.getById(idCard);
         if (patient == null) {
             throw new IllegalArgumentException("患者不存在");
         }
 
-        // 验证目标医院是否存在
         CohortCenter targetCenter = cohortCenterMapper.selectById(targetCohortCode);
         if (targetCenter == null) {
             throw new IllegalArgumentException("目标医院不存在");
         }
 
-        // 如果指定了目标医生，验证医生是否存在且属于目标医院
         if (targetDoctorId != null) {
             CohortAuthorization doctor = authorizationMapper.selectById(targetDoctorId);
             if (doctor == null || doctor.getRoleType() != 3) {
@@ -193,11 +189,12 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
         patient.setDoctorId(targetDoctorId);
         this.updateById(patient);
 
-        return getPatientById(patient.getId());
+        return getPatientById(patient.getIdCard());
     }
 
     private void validatePatientUniqueness(String idCard, String username, String patientCode) {
         if (StringUtils.hasText(idCard)) {
+            // idCard 是主键，check exist 要排除自己吗？创建时不需要，这里只是 check 存在性
             Long count = this.lambdaQuery().eq(Patient::getIdCard, idCard).count();
             if (count != null && count > 0) {
                 throw new IllegalArgumentException("身份证号已存在");
@@ -221,7 +218,7 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
                                   Map<String, CohortCenter> centerMap,
                                   Map<Long, CohortAuthorization> doctorMap) {
         PatientVO vo = new PatientVO();
-        vo.setId(patient.getId());
+        // vo.setId(patient.getId()); // ID 字段已删除
         vo.setIdCard(patient.getIdCard());
         vo.setPatientCode(patient.getPatientCode());
         vo.setPatientName(patient.getPatientName());
@@ -270,5 +267,3 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
         return nullProps.toArray(new String[0]);
     }
 }
-
-

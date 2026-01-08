@@ -1,4 +1,5 @@
 io\depression\entity\Patient.class
+io\depression\config\MybatisPlusConfig.class
 io\depression\dto\LoginDTO.class
 io\depression\dto\PasswordChangeDTO.class
 io\depression\dto\UserQueryDTO.class

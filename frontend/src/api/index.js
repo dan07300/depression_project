@@ -143,9 +143,10 @@ export function getPatients(params) {
   })
 }
 
-export function getPatientById(id) {
+// 以身份证号 idCard 作为唯一标识
+export function getPatientById(idCard) {
   return request({
-    url: `/patients/${id}`,
+    url: `/patients/${idCard}`,
     method: 'get'
   })
 }
@@ -158,24 +159,24 @@ export function createPatient(data) {
   })
 }
 
-export function updatePatient(id, data) {
+export function updatePatient(idCard, data) {
   return request({
-    url: `/patients/${id}`,
+    url: `/patients/${idCard}`,
     method: 'put',
     data
   })
 }
 
-export function deletePatient(id) {
+export function deletePatient(idCard) {
   return request({
-    url: `/patients/${id}`,
+    url: `/patients/${idCard}`,
     method: 'delete'
   })
 }
 
-export function transferPatient(patientId, data) {
+export function transferPatient(idCard, data) {
   return request({
-    url: `/patients/${patientId}/transfer`,
+    url: `/patients/${idCard}/transfer`,
     method: 'post',
     data
   })

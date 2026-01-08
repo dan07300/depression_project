@@ -16,9 +16,6 @@ public class PatientVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("患者ID")
-    private Long id;
-
     @ApiModelProperty("身份证号")
     private String idCard;
 

@@ -46,6 +46,7 @@ E:\study\AAA-yanjiusheng\depression_project\backend\src\main\java\io\depression\
 E:\study\AAA-yanjiusheng\depression_project\backend\src\main\java\io\depression\entity\PatientAssessment.java
 E:\study\AAA-yanjiusheng\depression_project\backend\src\main\java\io\depression\dto\HospitalQueryDTO.java
 E:\study\AAA-yanjiusheng\depression_project\backend\src\main\java\io\depression\dto\UserPermissionDTO.java
+E:\study\AAA-yanjiusheng\depression_project\backend\src\main\java\io\depression\config\MybatisPlusConfig.java
 E:\study\AAA-yanjiusheng\depression_project\backend\src\main\java\io\depression\mapper\SysPermissionMapper.java
 E:\study\AAA-yanjiusheng\depression_project\backend\src\main\java\io\depression\dto\ScaleQuestionCreateDTO.java
 E:\study\AAA-yanjiusheng\depression_project\backend\src\main\java\io\depression\dto\ProfileUpdateDTO.java

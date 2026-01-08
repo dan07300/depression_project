@@ -152,15 +152,15 @@
             <p class="account-role">管理员</p>
             <p class="account-name">admin</p>
           </div>
-          <div class="account-item" @click="fillAccount('hospital_admin1', '123456')">
+          <div class="account-item" @click="fillAccount('hospital_admin1', 'hospital123')">
             <p class="account-role">医院管理</p>
             <p class="account-name">hospital_admin1</p>
           </div>
-          <div class="account-item" @click="fillAccount('doctor001', '123456')">
+          <div class="account-item" @click="fillAccount('doctor001', 'doctor123')">
             <p class="account-role">医生</p>
             <p class="account-name">doctor001</p>
           </div>
-          <div class="account-item" @click="fillAccount('patient001', '123456')">
+          <div class="account-item" @click="fillAccount('patient001', 'patient123')">
             <p class="account-role">患者</p>
             <p class="account-name">patient001</p>
           </div>

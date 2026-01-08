@@ -192,6 +192,8 @@ export default {
       transferDialogVisible: false,
       dialogTitle: '添加病人',
       form: {
+        // 后端以身份证号 idCard 作为患者唯一标识
+        idCard: '',
         patientCode: '',
         patientName: '',
         gender: 1,
@@ -202,6 +204,7 @@ export default {
         groupName: ''
       },
       transferForm: {
+        // 这里存放患者身份证号，用于迁移接口路径变量
         patientId: null,
         targetCohortCode: '',
         targetDoctorId: null
@@ -313,7 +316,8 @@ export default {
     },
     handleTransfer(row) {
       this.transferForm = {
-        patientId: row.id,
+        // 使用身份证号作为唯一标识
+        patientId: row.idCard,
         targetCohortCode: '',
         targetDoctorId: null
       }
@@ -345,8 +349,9 @@ export default {
       this.$refs.form.validate(async(valid) => {
         if (valid) {
           try {
-            if (this.form.id) {
-              await updatePatient(this.form.id, this.form)
+            // 以 idCard 是否存在判断是新增还是编辑，并在更新时作为路径变量
+            if (this.form.idCard) {
+              await updatePatient(this.form.idCard, this.form)
             } else {
               await createPatient(this.form)
             }
@@ -366,7 +371,8 @@ export default {
         type: 'warning'
       }).then(async() => {
         try {
-          await deletePatient(row.id)
+          // 删除时同样使用身份证号作为唯一标识
+          await deletePatient(row.idCard)
           this.$message.success('删除成功')
           this.fetchData()
         } catch (error) {

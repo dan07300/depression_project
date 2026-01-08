@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank; // 注意引入 NotBlank
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -17,9 +18,9 @@ public class PatientUpdateDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "患者ID", required = true)
-    @NotNull(message = "患者ID不能为空")
-    private Long id;
+    @ApiModelProperty(value = "患者身份证号(主键)", required = true)
+    @NotNull(message = "患者身份证号不能为空")
+    private String idCard;
 
     @ApiModelProperty("患者姓名")
     private String patientName;

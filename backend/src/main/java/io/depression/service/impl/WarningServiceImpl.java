@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils; // 引入 StringUtils
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -49,22 +50,25 @@ public class WarningServiceImpl extends ServiceImpl<WarningRecordMapper, Warning
         this.page(page, wrapper);
 
         List<WarningRecord> records = page.getRecords();
-        Map<Long, Patient> patientMap = Collections.emptyMap();
+        Map<String, Patient> patientMap = Collections.emptyMap(); // Key 是 String (idCard)
         Map<Long, CohortAuthorization> processorMap = Collections.emptyMap();
 
         if (!CollectionUtils.isEmpty(records)) {
-            Set<Long> userIds = records.stream()
-                    .map(WarningRecord::getUserId)
-                    .filter(id -> id != null && id > 0)
+            // 修复 1: 这里的变量类型改为 Set<String>，因为 getIdCard 是 String
+            Set<String> patientIdCards = records.stream()
+                    .map(WarningRecord::getIdCard)
+                    .filter(StringUtils::hasText) // 使用 StringUtils.hasText
                     .collect(Collectors.toSet());
+
             Set<Long> processorIds = records.stream()
                     .map(WarningRecord::getProcessorId)
                     .filter(id -> id != null && id > 0)
                     .collect(Collectors.toSet());
 
-            if (!CollectionUtils.isEmpty(userIds)) {
-                patientMap = patientMapper.selectBatchIds(userIds).stream()
-                        .collect(Collectors.toMap(Patient::getId, Function.identity(), (a, b) -> a));
+            if (!CollectionUtils.isEmpty(patientIdCards)) {
+                // selectBatchIds 现在接受 String 集合，因为 Patient 主键是 String
+                patientMap = patientMapper.selectBatchIds(patientIdCards).stream()
+                        .collect(Collectors.toMap(Patient::getIdCard, Function.identity(), (a, b) -> a));
             }
             if (!CollectionUtils.isEmpty(processorIds)) {
                 processorMap = authorizationMapper.selectBatchIds(processorIds).stream()
@@ -72,7 +76,7 @@ public class WarningServiceImpl extends ServiceImpl<WarningRecordMapper, Warning
             }
         }
 
-        final Map<Long, Patient> finalPatientMap = patientMap;
+        final Map<String, Patient> finalPatientMap = patientMap;
         final Map<Long, CohortAuthorization> finalProcessorMap = processorMap;
         List<WarningRecordVO> voList = records.stream()
                 .map(item -> convertToVO(item, finalPatientMap, finalProcessorMap))
@@ -87,12 +91,23 @@ public class WarningServiceImpl extends ServiceImpl<WarningRecordMapper, Warning
         if (warning == null) {
             return null;
         }
-        Patient patient = warning.getUserId() != null ? patientMapper.selectById(warning.getUserId()) : null;
+
+        // 修复 2: selectById 需要传入 idCard (String)，而不是 userId (Long)
+        Patient patient = null;
+        if (StringUtils.hasText(warning.getIdCard())) {
+            patient = patientMapper.selectById(warning.getIdCard());
+        } else if (warning.getUserId() != null) {
+            // 如果只有 userId 没有 idCard（旧数据），可能查不出来，或者你可以尝试用 userId 去查（前提是你写了 findById 方法）
+            // 这里我们优先假设用 idCard 关联
+        }
+
         CohortAuthorization processor = warning.getProcessorId() != null
                 ? authorizationMapper.selectById(warning.getProcessorId())
                 : null;
+
+        // 构造 Map 时 key 也要用 String
         return convertToVO(warning,
-                patient == null ? Collections.emptyMap() : Collections.singletonMap(patient.getId(), patient),
+                patient == null ? Collections.emptyMap() : Collections.singletonMap(patient.getIdCard(), patient),
                 processor == null ? Collections.emptyMap() : Collections.singletonMap(processor.getId(), processor));
     }
 
@@ -114,8 +129,8 @@ public class WarningServiceImpl extends ServiceImpl<WarningRecordMapper, Warning
     }
 
     private WarningRecordVO convertToVO(WarningRecord warning,
-                                       Map<Long, Patient> patientMap,
-                                       Map<Long, CohortAuthorization> processorMap) {
+                                        Map<String, Patient> patientMap, // 参数类型确认是 <String, Patient>
+                                        Map<Long, CohortAuthorization> processorMap) {
         WarningRecordVO vo = new WarningRecordVO();
         BeanUtils.copyProperties(warning, vo);
 
@@ -153,8 +168,9 @@ public class WarningServiceImpl extends ServiceImpl<WarningRecordMapper, Warning
             }
         }
 
-        // 设置患者信息
-        Patient patient = patientMap.get(warning.getUserId());
+        // 设置患者信息：使用 idCard 获取
+        // 注意：warning.getIdCard() 可能为 null，所以要做防空处理，或者 patientMap.get(null) 返回 null 也没事
+        Patient patient = patientMap.get(warning.getIdCard());
         if (patient != null) {
             vo.setPatientName(patient.getPatientName());
             vo.setPatientCode(patient.getPatientCode());

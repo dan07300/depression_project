@@ -16,9 +16,9 @@ public class PatientTransferDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "患者ID", required = true)
-    @NotNull(message = "患者ID不能为空")
-    private Long patientId;
+    @ApiModelProperty(value = "患者身份证号", required = true)
+    @NotNull(message = "患者身份证号不能为空")
+    private String idCard;
 
     @ApiModelProperty(value = "目标医院编码", required = true)
     @NotNull(message = "目标医院编码不能为空")

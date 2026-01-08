@@ -29,10 +29,10 @@ public interface PatientService extends IService<Patient> {
     /**
      * 根据ID获取患者详情
      *
-     * @param id 患者ID
+     * @param idCard 患者ID
      * @return 患者VO
      */
-    PatientVO getPatientById(Long id);
+    PatientVO getPatientById(String idCard);
 
     /**
      * 创建患者
@@ -53,20 +53,20 @@ public interface PatientService extends IService<Patient> {
     /**
      * 删除患者（逻辑删除）
      *
-     * @param id 患者ID
+     * @param idCard 患者ID
      * @return 是否成功
      */
-    boolean deletePatient(Long id);
+    boolean deletePatient(String idCard);
 
     /**
      * 患者迁移
      *
-     * @param patientId 患者ID
+     * @param idCard 患者ID
      * @param targetCohortCode 目标医院编码
      * @param targetDoctorId 目标医生ID（可选）
      * @return 患者VO
      */
-    PatientVO transferPatient(Long patientId, String targetCohortCode, Long targetDoctorId);
+    PatientVO transferPatient(String idCard, String targetCohortCode, Long targetDoctorId);
 }
 
 

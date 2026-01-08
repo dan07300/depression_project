@@ -25,10 +25,7 @@ public class Patient implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
-    @ApiModelProperty("自增ID")
-    private Long id;
-
+    @TableId(value = "id_card", type = IdType.INPUT)
     @ApiModelProperty("身份证号")
     private String idCard;
 

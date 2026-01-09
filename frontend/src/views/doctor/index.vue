@@ -1,27 +1,72 @@
 <template>
   <div class="doctor-container">
     <div class="header">
-      <h2>所有医生</h2>
-      <el-button type="primary" icon="el-icon-plus" @click="handleAdd">添加医生</el-button>
+      <h2>{{ pageTitle }}</h2>
+      <el-button type="primary" icon="el-icon-plus" @click="handleAdd">
+        {{ userInfo && userInfo.roleType === 1 ? '添加医生' : '添加医生' }}
+      </el-button>
     </div>
 
-    <div class="filter-bar">
-      <el-select v-model="queryParams.cohortCode" placeholder="全部医院" clearable style="width: 150px; margin-right: 10px;">
-        <el-option
-          v-for="item in hospitalList"
-          :key="item.cohortCode"
-          :label="item.cohortName"
-          :value="item.cohortCode"
-        />
-      </el-select>
-      <el-input
-        v-model="queryParams.keyword"
-        placeholder="用户名/姓名/手机号"
-        style="width: 200px; margin-right: 10px;"
-        clearable
-      />
-      <el-button type="primary" icon="el-icon-search" @click="handleQuery">查询</el-button>
-      <el-button icon="el-icon-refresh" @click="handleReset">重置</el-button>
+    <!-- 搜索筛选栏 - 系统管理员显示 -->
+    <div v-if="userInfo && userInfo.roleType === 1" class="filter-bar">
+      <el-form :inline="true" :model="queryParams" class="filter-form">
+        <el-form-item label="医院">
+          <el-select v-model="queryParams.cohortCode" placeholder="全部医院" clearable style="width: 150px;">
+            <el-option
+              v-for="item in hospitalList"
+              :key="item.cohortCode"
+              :label="item.cohortName"
+              :value="item.cohortCode"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="数据权限">
+          <el-select v-model="queryParams.dataScope" placeholder="全部" clearable style="width: 150px;">
+            <el-option label="全部" value="" />
+            <el-option label="个人数据" value="personal" />
+            <el-option label="医院数据" value="hospital" />
+            <el-option label="全部数据" value="all" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="关键字">
+          <el-input
+            v-model="queryParams.keyword"
+            placeholder="用户名/姓名/手机号"
+            style="width: 200px;"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="el-icon-search" @click="handleQuery">查询</el-button>
+          <el-button icon="el-icon-refresh" @click="handleReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <!-- 搜索筛选栏 - 医院管理员显示（关键字 + 数据权限） -->
+    <div v-if="userInfo && userInfo.roleType === 2" class="filter-bar">
+      <el-form :inline="true" :model="queryParams" class="filter-form">
+        <el-form-item label="关键字">
+          <el-input
+            v-model="queryParams.keyword"
+            placeholder="用户名/姓名/手机号"
+            style="width: 200px;"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="数据权限">
+          <el-select v-model="queryParams.dataScope" placeholder="全部" clearable style="width: 150px;">
+            <el-option label="全部" value="" />
+            <el-option label="个人数据" value="personal" />
+            <el-option label="医院数据" value="hospital" />
+            <el-option label="全部数据" value="all" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="el-icon-search" @click="handleQuery">查询</el-button>
+          <el-button icon="el-icon-refresh" @click="handleReset">重置</el-button>
+        </el-form-item>
+      </el-form>
     </div>
 
     <el-table v-loading="loading" :data="tableData" border>
@@ -119,9 +164,21 @@
 
 <script>
 import { getUsers, createUser, updateUser, deleteUser, getAllHospitals } from '@/api'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Doctor',
+  computed: {
+    ...mapGetters(['userInfo']),
+    pageTitle() {
+      if (this.userInfo && this.userInfo.roleType === 1) {
+        return '所有医生'
+      } else if (this.userInfo && this.userInfo.roleType === 2) {
+        return '医生管理'
+      }
+      return '医生管理'
+    }
+  },
   data() {
     return {
       loading: false,
@@ -133,7 +190,8 @@ export default {
         size: 10,
         cohortCode: '',
         roleType: 3,
-        keyword: ''
+        keyword: '',
+        dataScope: '' // 数据权限：系统管理员专用
       },
       dialogVisible: false,
       dialogTitle: '添加医生',
@@ -269,10 +327,24 @@ export default {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+    }
   }
 
   .filter-bar {
     margin-bottom: 20px;
+
+    .filter-form {
+      margin: 0;
+      
+      .el-form-item {
+        margin-bottom: 0;
+      }
+    }
   }
 }
 </style>

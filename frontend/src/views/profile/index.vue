@@ -2,11 +2,16 @@
   <div class="profile-container">
     <div class="header-section">
       <div class="avatar-section">
-        <el-avatar :size="80" :icon="'el-icon-user-solid'" style="background-color: #409eff;"></el-avatar>
+        <el-avatar :size="80" style="background-color: #909399; color: white; font-size: 32px;">
+          {{ userInfo.realName ? userInfo.realName.charAt(0) : '管' }}
+        </el-avatar>
       </div>
       <div class="info-section">
         <h2>{{ userInfo.realName || '系统管理员' }}</h2>
-        <p>{{ getRoleTypeName(userInfo.roleType) }}</p>
+        <div class="tags">
+          <el-tag type="primary">{{ getRoleTypeName(userInfo.roleType) }}</el-tag>
+          <el-tag v-if="userInfo.cohortName" type="info">{{ userInfo.cohortName }}</el-tag>
+        </div>
       </div>
       <div class="action-section">
         <el-button type="primary" icon="el-icon-check" @click="handleSave">保存修改</el-button>
@@ -49,6 +54,12 @@
                   <el-radio :label="0">女</el-radio>
                 </el-radio-group>
               </el-form-item>
+              <el-form-item label="科室">
+                <el-input v-model="form.department" placeholder="请输入科室" />
+              </el-form-item>
+              <el-form-item label="职称">
+                <el-input v-model="form.title" placeholder="请输入职称" />
+              </el-form-item>
             </el-form>
           </el-card>
         </el-col>
@@ -65,8 +76,11 @@
                   {{ getRoleTypeName(userInfo.roleType) }}
                 </el-tag>
               </el-form-item>
+              <el-form-item label="所属医院">
+                <span>{{ userInfo.cohortName || '未设置' }}</span>
+              </el-form-item>
               <el-form-item label="注册时间">
-                <span>{{ userInfo.createTime || '2025/12/10' }}</span>
+                <span>{{ formatDate(userInfo.createTime) || '2025/12/10' }}</span>
               </el-form-item>
               <el-form-item label="账号状态">
                 <el-tag type="success">
@@ -77,7 +91,7 @@
               <el-form-item label="安全设置">
                 <div class="security-setting">
                   <p>定期更换密码可以保护账号安全</p>
-                  <el-button size="mini">修改</el-button>
+                  <el-button size="mini" @click="handleChangePassword">修改</el-button>
                 </div>
               </el-form-item>
             </el-form>
@@ -89,7 +103,7 @@
 </template>
 
 <script>
-import { getUserById, updateProfile } from '@/api'
+import { getUserById, updateProfile, changePassword } from '@/api'
 
 export default {
   name: 'Profile',
@@ -101,7 +115,9 @@ export default {
         realName: '',
         phone: '',
         email: '',
-        gender: 1
+        gender: 1,
+        department: '',
+        title: ''
       }
     }
   },
@@ -120,7 +136,9 @@ export default {
             realName: this.userInfo.realName || '',
             phone: this.userInfo.phone || '',
             email: this.userInfo.email || '',
-            gender: this.userInfo.gender !== undefined ? this.userInfo.gender : 1
+            gender: this.userInfo.gender !== undefined ? this.userInfo.gender : 1,
+            department: this.userInfo.department || '',
+            title: this.userInfo.title || ''
           }
 
           // 【新增】同步更新Vuex里的用户信息（关键！）
@@ -154,6 +172,25 @@ export default {
       } catch (error) {
         this.$message.error('保存失败')
       }
+    },
+    handleChangePassword() {
+      this.$prompt('请输入新密码', '修改密码', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputType: 'password'
+      }).then(async({ value }) => {
+        try {
+          await changePassword(this.userInfo.id, { newPassword: value })
+          this.$message.success('密码修改成功')
+        } catch (error) {
+          this.$message.error('密码修改失败')
+        }
+      }).catch(() => {})
+    },
+    formatDate(date) {
+      if (!date) return ''
+      const d = new Date(date)
+      return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`
     }
   }
 }
@@ -181,6 +218,12 @@ export default {
       h2 {
         margin: 0 0 10px 0;
         font-size: 24px;
+      }
+
+      .tags {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
       }
 
       p {

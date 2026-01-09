@@ -38,54 +38,118 @@
     </div>
 
     <div class="kpi-cards">
-      <el-card v-if="userInfo && userInfo.roleType === 1" class="kpi-card blue">
-        <div class="kpi-icon">
-          <i class="el-icon-office-building"></i>
+      <!-- 医生角色显示的统计卡片 -->
+      <template v-if="userInfo && userInfo.roleType === 3">
+        <el-card class="kpi-card blue">
+          <div class="kpi-icon blue-bg">
+            <i class="el-icon-user"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">负责患者</div>
+            <div class="kpi-value">{{ dashboardData.responsiblePatients || dashboardData.patientCount || 0 }}</div>
+          </div>
+        </el-card>
+        <el-card class="kpi-card red">
+          <div class="kpi-icon red-bg">
+            <i class="el-icon-bell"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">待处理预警</div>
+            <div class="kpi-value">{{ dashboardData.pendingWarnings || 0 }}</div>
+          </div>
+        </el-card>
+        <el-card class="kpi-card orange">
+          <div class="kpi-icon orange-bg">
+            <i class="el-icon-time"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">今日需随访</div>
+            <div class="kpi-value">{{ dashboardData.todayFollowUps || 0 }}</div>
+          </div>
+        </el-card>
+      </template>
+      <!-- 系统管理员和医院管理员显示的统计卡片 -->
+      <template v-else>
+        <el-card v-if="userInfo && userInfo.roleType === 1" class="kpi-card blue">
+          <div class="kpi-icon">
+            <i class="el-icon-office-building"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">医院数量</div>
+            <div class="kpi-value">{{ dashboardData.hospitalCount || 0 }}</div>
+          </div>
+        </el-card>
+        <el-card v-if="userInfo && userInfo.roleType === 1" class="kpi-card green">
+          <div class="kpi-icon">
+            <i class="el-icon-user"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">用户总数</div>
+            <div class="kpi-value">{{ dashboardData.userCount || 0 }}</div>
+          </div>
+        </el-card>
+        <el-card v-if="userInfo && userInfo.roleType === 2" class="kpi-card green">
+          <div class="kpi-icon">
+            <i class="el-icon-user"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">本院用户</div>
+            <div class="kpi-value">{{ dashboardData.hospitalUserCount || 0 }}</div>
+          </div>
+        </el-card>
+        <el-card class="kpi-card orange">
+          <div class="kpi-icon">
+            <i class="el-icon-warning"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">预警总数</div>
+            <div class="kpi-value">{{ dashboardData.warningCount || 0 }}</div>
+          </div>
+        </el-card>
+        <el-card class="kpi-card red">
+          <div class="kpi-icon">
+            <i class="el-icon-bell"></i>
+          </div>
+          <div class="kpi-content">
+            <div class="kpi-label">高风险预警</div>
+            <div class="kpi-value">{{ dashboardData.highRiskWarningCount || 0 }}</div>
+          </div>
+        </el-card>
+      </template>
+    </div>
+
+    <!-- 医生角色的图表 -->
+    <div v-if="userInfo && userInfo.roleType === 3" class="charts-container doctor-charts">
+      <el-card class="chart-card">
+        <div slot="header" class="chart-header">
+          <i class="el-icon-time"></i>
+          <span>我的患者风险分布</span>
         </div>
-        <div class="kpi-content">
-          <div class="kpi-label">医院数量</div>
-          <div class="kpi-value">{{ dashboardData.hospitalCount || 0 }}</div>
-        </div>
-      </el-card>
-      <el-card v-if="userInfo && userInfo.roleType === 1" class="kpi-card green">
-        <div class="kpi-icon">
-          <i class="el-icon-user"></i>
-        </div>
-        <div class="kpi-content">
-          <div class="kpi-label">用户总数</div>
-          <div class="kpi-value">{{ dashboardData.userCount || 0 }}</div>
-        </div>
-      </el-card>
-      <el-card v-if="userInfo && userInfo.roleType === 2" class="kpi-card green">
-        <div class="kpi-icon">
-          <i class="el-icon-user"></i>
-        </div>
-        <div class="kpi-content">
-          <div class="kpi-label">本院用户</div>
-          <div class="kpi-value">{{ dashboardData.hospitalUserCount || 0 }}</div>
-        </div>
-      </el-card>
-      <el-card class="kpi-card orange">
-        <div class="kpi-icon">
-          <i class="el-icon-warning"></i>
-        </div>
-        <div class="kpi-content">
-          <div class="kpi-label">预警总数</div>
-          <div class="kpi-value">{{ dashboardData.warningCount || 0 }}</div>
-        </div>
-      </el-card>
-      <el-card class="kpi-card red">
-        <div class="kpi-icon">
-          <i class="el-icon-bell"></i>
-        </div>
-        <div class="kpi-content">
-          <div class="kpi-label">高风险预警</div>
-          <div class="kpi-value">{{ dashboardData.highRiskWarningCount || 0 }}</div>
+        <div class="chart-content">
+          <div class="legend-container">
+            <div class="legend-item">
+              <span class="legend-color" style="background: #f56c6c;"></span>
+              <span>高风险</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background: #e6a23c;"></span>
+              <span>中风险</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background: #67c23a;"></span>
+              <span>低风险</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-color" style="background: #409eff;"></span>
+              <span>缓解期</span>
+            </div>
+          </div>
+          <div ref="riskChart" style="width: 100%; height: 400px;"></div>
         </div>
       </el-card>
     </div>
-
-    <div class="charts-container">
+    <!-- 其他角色的图表 -->
+    <div v-else class="charts-container">
       <el-card class="chart-card">
         <div slot="header" class="chart-header">
           <i class="el-icon-time"></i>
@@ -130,7 +194,9 @@ export default {
         this.dashboardData = response.data || {}
         this.$nextTick(() => {
           this.initRiskChart()
-          this.initTrendChart()
+          if (!this.userInfo || this.userInfo.roleType !== 3) {
+            this.initTrendChart()
+          }
         })
       } catch (error) {
         console.error('获取数据失败', error)
@@ -139,20 +205,21 @@ export default {
     initRiskChart() {
       const chart = echarts.init(this.$refs.riskChart)
       const distribution = this.dashboardData.riskLevelDistribution || {}
+      const isDoctor = this.userInfo && this.userInfo.roleType === 3
       const option = {
         tooltip: {
-          trigger: 'item'
+          trigger: 'item',
+          formatter: '{a} <br/>{b}: {c} ({d}%)'
         },
         legend: {
-          orient: 'vertical',
-          left: 'left'
+          show: false // 医生视图不显示图例，因为已经在左侧显示了
         },
         series: [
           {
             name: '风险等级',
             type: 'pie',
-            radius: ['40%', '70%'],
-            center: ['55%', '50%'],
+            radius: isDoctor ? ['50%', '75%'] : ['40%', '70%'],
+            center: isDoctor ? ['60%', '50%'] : ['55%', '50%'],
             avoidLabelOverlap: false,
             itemStyle: {
               borderRadius: 10,
@@ -160,7 +227,7 @@ export default {
               borderWidth: 2
             },
             label: {
-              show: false,
+              show: !isDoctor,
               position: 'center'
             },
             emphasis: {
@@ -334,6 +401,39 @@ export default {
       .kpi-icon {
         font-size: 40px;
         margin-right: 15px;
+        
+        &.blue-bg {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: #409eff;
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        &.red-bg {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: #f56c6c;
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        &.orange-bg {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: #e6a23c;
+          color: white;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
       }
 
       .kpi-content {
@@ -358,6 +458,10 @@ export default {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    
+    &.doctor-charts {
+      grid-template-columns: 1fr;
+    }
 
     .chart-card {
       .chart-header {
@@ -366,7 +470,36 @@ export default {
         gap: 8px;
         font-weight: bold;
       }
+      
+      .chart-content {
+        position: relative;
+        
+        .legend-container {
+          position: absolute;
+          left: 20px;
+          top: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+          z-index: 10;
+          
+          .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            
+            .legend-color {
+              width: 16px;
+              height: 16px;
+              border-radius: 2px;
+              display: inline-block;
+            }
+          }
+        }
+      }
     }
   }
+  
 }
 </style>

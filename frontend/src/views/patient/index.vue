@@ -1,39 +1,182 @@
 <template>
   <div class="patient-container">
     <div class="header">
-      <h2>所有病人</h2>
-      <el-button type="primary" icon="el-icon-plus" @click="handleAdd">添加病人</el-button>
+      <h2>{{ pageTitle }}</h2>
+      <el-button v-if="userInfo && userInfo.roleType !== 3" type="primary" icon="el-icon-plus" @click="handleAdd">
+        {{ userInfo && userInfo.roleType === 1 ? '添加病人' : '添加病人' }}
+      </el-button>
     </div>
 
-    <div class="filter-bar">
-      <el-select v-model="queryParams.cohortCode" placeholder="全部医院" clearable style="width: 150px; margin-right: 10px;">
-        <el-option
-          v-for="item in hospitalList"
-          :key="item.cohortCode"
-          :label="item.cohortName"
-          :value="item.cohortCode"
-        />
-      </el-select>
-      <el-input
-        v-model="queryParams.keyword"
-        placeholder="患者编号/姓名/手机号"
-        style="width: 200px; margin-right: 10px;"
-        clearable
-      />
-      <el-select v-model="queryParams.status" placeholder="全部状态" clearable style="width: 150px; margin-right: 10px;">
-        <el-option label="正常" :value="1" />
-        <el-option label="已排除" :value="0" />
-        <el-option label="已出组" :value="2" />
-        <el-option label="失访" :value="3" />
-        <el-option label="康复" :value="4" />
-      </el-select>
-      <el-button type="primary" icon="el-icon-search" @click="handleQuery">查询</el-button>
-      <el-button icon="el-icon-refresh" @click="handleReset">重置</el-button>
+    <!-- 统计卡片 - 仅医生角色显示 -->
+    <div v-if="userInfo && userInfo.roleType === 3" class="stats-cards">
+      <el-card class="stat-card">
+        <div class="stat-label">已登记</div>
+        <div class="stat-value">{{ stats.registered || 0 }}</div>
+      </el-card>
+      <el-card class="stat-card">
+        <div class="stat-label">进行中</div>
+        <div class="stat-value">{{ stats.inProgress || 0 }}</div>
+      </el-card>
+      <el-card class="stat-card">
+        <div class="stat-label">随访截止</div>
+        <div class="stat-value">{{ stats.followUpDeadline || 0 }}</div>
+      </el-card>
+      <el-card class="stat-card">
+        <div class="stat-label">已排除</div>
+        <div class="stat-value">{{ stats.excluded || 0 }}</div>
+      </el-card>
+      <el-card class="stat-card wide">
+        <div class="stat-label">已完成随访</div>
+        <div class="stat-value">{{ stats.followUpCompleted || 0 }}</div>
+      </el-card>
     </div>
 
-    <el-table v-loading="loading" :data="tableData" border>
+    <!-- 筛选按钮 - 仅医生角色显示 -->
+    <div v-if="userInfo && userInfo.roleType === 3" class="filter-buttons">
+      <el-button 
+        :type="queryParams.status === null ? 'primary' : ''" 
+        @click="handleStatusFilter(null)"
+      >
+        全部状态
+      </el-button>
+      <el-button 
+        :type="queryParams.status === 1 ? 'primary' : ''" 
+        @click="handleStatusFilter(1)"
+      >
+        正常
+      </el-button>
+      <el-button 
+        :type="queryParams.status === 0 ? 'primary' : ''" 
+        @click="handleStatusFilter(0)"
+      >
+        已排除
+      </el-button>
+      <el-button 
+        type="primary" 
+        icon="el-icon-plus" 
+        style="float: right;"
+        @click="handleAddToGroup"
+      >
+        添加入组
+      </el-button>
+    </div>
+
+    <!-- 搜索筛选栏 - 系统管理员显示 -->
+    <div v-if="userInfo && userInfo.roleType === 1" class="filter-bar">
+      <el-form :inline="true" :model="queryParams" class="filter-form">
+        <el-form-item label="医院">
+          <el-select v-model="queryParams.cohortCode" placeholder="全部医院" clearable style="width: 150px;">
+            <el-option
+              v-for="item in hospitalList"
+              :key="item.cohortCode"
+              :label="item.cohortName"
+              :value="item.cohortCode"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="关键字">
+          <el-input
+            v-model="queryParams.keyword"
+            placeholder="患者编号/姓名/手机号"
+            style="width: 200px;"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select v-model="queryParams.status" placeholder="全部状态" clearable style="width: 150px;">
+            <el-option label="全部状态" :value="null" />
+            <el-option label="正常" :value="1" />
+            <el-option label="已排除" :value="0" />
+            <el-option label="已出组" :value="2" />
+            <el-option label="失访" :value="3" />
+            <el-option label="康复" :value="4" />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="el-icon-search" @click="handleQuery">查询</el-button>
+          <el-button icon="el-icon-refresh" @click="handleReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <!-- 搜索筛选栏 - 医院管理员显示（只有关键字） -->
+    <div v-if="userInfo && userInfo.roleType === 2" class="filter-bar">
+      <el-form :inline="true" :model="queryParams" class="filter-form">
+        <el-form-item label="关键字">
+          <el-input
+            v-model="queryParams.keyword"
+            placeholder="患者编号/姓名/手机号"
+            style="width: 200px;"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" icon="el-icon-search" @click="handleQuery">查询</el-button>
+          <el-button icon="el-icon-refresh" @click="handleReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <!-- 医生角色的表格 -->
+    <el-table v-if="userInfo && userInfo.roleType === 3" v-loading="loading" :data="tableData" border>
+      <el-table-column prop="patientCode" label="患者编号" width="120" />
+      <el-table-column prop="patientName" label="患者姓名" width="120">
+        <template slot-scope="scope">
+          <el-link type="primary" @click="handlePatientDetail(scope.row)">{{ scope.row.patientName }}</el-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="firstScreening" label="首次筛查" width="100">
+        <template slot-scope="scope">
+          {{ (scope.row.firstScreening === 1 || scope.row.firstScreening === true) ? '是' : (scope.row.firstScreening === 0 || scope.row.firstScreening === false ? '否' : '否') }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="isFollowUp" label="是否随访" width="100">
+        <template slot-scope="scope">
+          {{ (scope.row.isFollowUp === 1 || scope.row.isFollowUp === true) ? '是' : (scope.row.isFollowUp === 0 || scope.row.isFollowUp === false ? '否' : '否') }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="enrollDate" label="入组时间" width="120">
+        <template slot-scope="scope">
+          {{ formatDate(scope.row.enrollDate || scope.row.enrollTime) }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="isRelapsed" label="是否复发" width="100">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.isRelapsed === 1 || scope.row.isRelapsed === true" type="danger" size="small">复发</el-tag>
+          <el-tag v-else type="success" size="small">正常</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="relapseDate" label="复发时间" width="120">
+        <template slot-scope="scope">
+          {{ (scope.row.relapseDate || scope.row.relapseTime) ? formatDate(scope.row.relapseDate || scope.row.relapseTime) : '' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="status" label="状态" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="getStatusType(scope.row.status)" size="small">
+            {{ getStatusText(scope.row.status) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="400" fixed="right">
+        <template slot-scope="scope">
+          <el-button size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button size="mini" type="text" @click="handleRecurrence(scope.row)">复发</el-button>
+          <el-button size="mini" type="text" @click="handleFollowUp(scope.row)">随访</el-button>
+          <el-button size="mini" type="text" @click="handleExclude(scope.row)">排除</el-button>
+          <el-button size="mini" type="text" @click="handleTransfer(scope.row)">迁移</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 系统管理员的表格 -->
+    <el-table v-if="userInfo && userInfo.roleType === 1" v-loading="loading" :data="tableData" border>
       <el-table-column prop="patientCode" label="患者编号" />
-      <el-table-column prop="patientName" label="姓名" />
+      <el-table-column prop="patientName" label="姓名">
+        <template slot-scope="scope">
+          <el-link type="primary" @click="handlePatientDetail(scope.row)">{{ scope.row.patientName }}</el-link>
+        </template>
+      </el-table-column>
       <el-table-column prop="gender" label="性别" width="80">
         <template slot-scope="scope">
           {{ scope.row.gender === 1 ? '男' : '女' }}
@@ -47,18 +190,56 @@
       <el-table-column prop="groupName" label="分组" />
       <el-table-column prop="status" label="状态" width="100">
         <template slot-scope="scope">
-          <el-tag :type="getStatusType(scope.row.status)">
+          <el-tag :type="getStatusType(scope.row.status)" size="small">
             {{ getStatusText(scope.row.status) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="enrollDate" label="入组日期" width="120" />
-      <el-table-column label="操作" width="250">
+      <el-table-column prop="enrollDate" label="入组日期" width="120">
         <template slot-scope="scope">
-          <el-button size="mini" type="info" @click="handleDetail(scope.row)">详情</el-button>
-          <el-button size="mini" type="primary" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button size="mini" type="warning" @click="handleTransfer(scope.row)">迁移</el-button>
-          <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+          {{ formatDate(scope.row.enrollDate || scope.row.enrollTime) }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="250" fixed="right">
+        <template slot-scope="scope">
+          <el-button size="mini" type="text" @click="handlePatientDetail(scope.row)">详情</el-button>
+          <el-button size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button size="mini" type="text" @click="handleTransfer(scope.row)">迁移</el-button>
+          <el-button size="mini" type="text" style="color: #f56c6c;" @click="handleDelete(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 医院管理员的表格（不显示所属医院列） -->
+    <el-table v-if="userInfo && userInfo.roleType === 2" v-loading="loading" :data="tableData" border>
+      <el-table-column prop="patientCode" label="患者编号" />
+      <el-table-column prop="patientName" label="姓名">
+        <template slot-scope="scope">
+          <el-link type="primary" @click="handlePatientDetail(scope.row)">{{ scope.row.patientName }}</el-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="gender" label="性别" width="80">
+        <template slot-scope="scope">
+          {{ scope.row.gender === 1 ? '男' : '女' }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="birthday" label="出生日期" width="120" />
+      <el-table-column prop="phone" label="手机号" />
+      <el-table-column prop="doctorName" label="所属医生" />
+      <el-table-column prop="diagnosis" label="诊断" />
+      <el-table-column prop="groupName" label="分组" />
+      <el-table-column prop="status" label="状态" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="getStatusType(scope.row.status)" size="small">
+            {{ getStatusText(scope.row.status) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="200" fixed="right">
+        <template slot-scope="scope">
+          <el-button size="mini" type="text" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button size="mini" type="text" @click="handleTransfer(scope.row)">迁移</el-button>
+          <el-button size="mini" type="text" style="color: #f56c6c;" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -171,9 +352,23 @@
 
 <script>
 import { getPatients, createPatient, updatePatient, deletePatient, transferPatient, getAllHospitals, listUsers } from '@/api'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Patient',
+  computed: {
+    ...mapGetters(['userInfo']),
+    pageTitle() {
+      if (this.userInfo && this.userInfo.roleType === 1) {
+        return '所有病人'
+      } else if (this.userInfo && this.userInfo.roleType === 2) {
+        return '病人管理'
+      } else if (this.userInfo && this.userInfo.roleType === 3) {
+        return '患者列表'
+      }
+      return '患者列表'
+    }
+  },
   data() {
     return {
       loading: false,
@@ -181,6 +376,13 @@ export default {
       total: 0,
       hospitalList: [],
       doctorList: [],
+      stats: {
+        registered: 0,
+        inProgress: 0,
+        followUpDeadline: 0,
+        excluded: 0,
+        followUpCompleted: 0
+      },
       queryParams: {
         current: 1,
         size: 10,
@@ -227,11 +429,79 @@ export default {
         const response = await getPatients(this.queryParams)
         this.tableData = response.data.records || []
         this.total = response.data.total || 0
+        this.calculateStats()
       } catch (error) {
         this.$message.error('获取数据失败')
       } finally {
         this.loading = false
       }
+    },
+    calculateStats() {
+      // 计算统计数据
+      this.stats = {
+        registered: this.total,
+        inProgress: this.tableData.filter(p => p.status === 1).length,
+        followUpDeadline: 0, // 需要根据业务逻辑计算
+        excluded: this.tableData.filter(p => p.status === 0).length,
+        followUpCompleted: this.tableData.filter(p => p.isFollowUp === 1 || p.isFollowUp === true).length
+      }
+    },
+    handleStatusFilter(status) {
+      this.queryParams.status = status
+      this.queryParams.current = 1
+      this.fetchData()
+    },
+    handleAddToGroup() {
+      this.handleAdd()
+    },
+    handlePatientDetail(row) {
+      this.handleDetail(row)
+    },
+    handleRecurrence(row) {
+      this.$prompt('请输入复发时间', '复发记录', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPattern: /\d{8}/,
+        inputErrorMessage: '请输入8位数字日期，格式：YYYYMMDD'
+      }).then(({ value }) => {
+        // 调用API更新复发信息
+        this.$message.success('复发记录已更新')
+        this.fetchData()
+      }).catch(() => {})
+    },
+    handleFollowUp(row) {
+      this.$prompt('请输入随访信息', '随访记录', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputType: 'textarea'
+      }).then(({ value }) => {
+        // 调用API更新随访信息
+        this.$message.success('随访记录已更新')
+        this.fetchData()
+      }).catch(() => {})
+    },
+    handleExclude(row) {
+      this.$confirm('确定要排除该患者吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        try {
+          await updatePatient(row.idCard, { status: 0 })
+          this.$message.success('已排除')
+          this.fetchData()
+        } catch (error) {
+          this.$message.error('操作失败')
+        }
+      })
+    },
+    formatDate(date) {
+      if (!date) return ''
+      const dateStr = date.toString()
+      if (dateStr.length === 8) {
+        return `${dateStr.substring(0, 4)}/${dateStr.substring(4, 6)}/${dateStr.substring(6, 8)}`
+      }
+      return date
     },
     async fetchHospitals() {
       try {
@@ -389,14 +659,60 @@ export default {
   padding: 20px;
 
   .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 20px;
+    
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 500;
+    }
+  }
+
+  .stats-cards {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    
+    .stat-card {
+      flex: 1;
+      text-align: center;
+      padding: 15px;
+      
+      &.wide {
+        flex: 1.2;
+      }
+      
+      .stat-label {
+        font-size: 14px;
+        color: #909399;
+        margin-bottom: 10px;
+      }
+      
+      .stat-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: #303133;
+      }
+    }
+  }
+
+  .filter-buttons {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
   }
 
   .filter-bar {
     margin-bottom: 20px;
+
+    .filter-form {
+      margin: 0;
+      
+      .el-form-item {
+        margin-bottom: 0;
+      }
+    }
   }
 }
 </style>

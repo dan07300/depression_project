@@ -108,6 +108,18 @@ export default {
               return child.meta.roles.includes(roleType)
             }
             return true
+          }).map(child => {
+            // 根据角色类型动态设置标题
+            if (child.meta && child.meta.titleMap && child.meta.titleMap[roleType]) {
+              return {
+                ...child,
+                meta: {
+                  ...child.meta,
+                  title: child.meta.titleMap[roleType]
+                }
+              }
+            }
+            return child
           })
           if (filteredChildren.length > 0) {
             return { ...route, children: filteredChildren }

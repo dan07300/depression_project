@@ -58,6 +58,7 @@ export const constantRoutes = [
             }
         ]
     },
+    // 医生管理 - 系统管理员显示"所有医生"，医院管理员显示"医生管理"
     {
         path: '/doctor',
         component: Layout,
@@ -68,37 +69,78 @@ export const constantRoutes = [
                 path: 'list',
                 name: 'DoctorList',
                 component: () => import('@/views/doctor/index'),
-                meta: { title: '医生管理', icon: 'el-icon-user-solid', roles: [1, 2] }
+                meta: { 
+                    title: '医生管理', // 默认标题，会根据角色动态显示
+                    icon: 'el-icon-user-solid', 
+                    roles: [1, 2],
+                    titleMap: {
+                        1: '所有医生', // 系统管理员
+                        2: '医生管理'  // 医院管理员
+                    }
+                }
             }
         ]
     },
+    // 患者/病人管理 - 不同角色显示不同标题
     {
         path: '/patient',
         component: Layout,
         redirect: '/patient/list',
-        // 系统管理员、医院管理员、医生均可见
         meta: { roles: [1, 2, 3] },
         children: [
             {
                 path: 'list',
                 name: 'PatientList',
                 component: () => import('@/views/patient/index'),
-                meta: { title: '病人管理', icon: 'el-icon-user', roles: [1, 2, 3] }
+                meta: { 
+                    title: '患者列表', // 默认标题，会根据角色动态显示
+                    icon: 'el-icon-user', 
+                    roles: [1, 2, 3],
+                    titleMap: {
+                        1: '所有病人', // 系统管理员
+                        2: '病人管理',  // 医院管理员
+                        3: '患者列表'   // 医生
+                    }
+                }
             }
         ]
     },
+    // 评定管理 - 仅医生可见
+    {
+        path: '/assessment',
+        component: Layout,
+        redirect: '/assessment/list',
+        meta: { roles: [3] }, // 仅医生可见
+        children: [
+            {
+                path: 'list',
+                name: 'AssessmentList',
+                component: () => import('@/views/assessment/index'),
+                meta: { title: '评定管理', icon: 'el-icon-document', roles: [3] }
+            }
+        ]
+    },
+    // 预警管理 - 所有角色可见，但标题不同
     {
         path: '/warning',
         component: Layout,
         redirect: '/warning/list',
-        // 系统管理员、医院管理员、医生均可见
         meta: { roles: [1, 2, 3] },
         children: [
             {
                 path: 'list',
                 name: 'WarningList',
                 component: () => import('@/views/warning/index'),
-                meta: { title: '预警管理', icon: 'el-icon-warning', roles: [1, 2, 3] }
+                meta: { 
+                    title: '预警处理', // 默认标题，会根据角色动态显示
+                    icon: 'el-icon-warning', 
+                    roles: [1, 2, 3],
+                    titleMap: {
+                        1: '预警管理', // 系统管理员
+                        2: '预警管理',  // 医院管理员
+                        3: '预警处理'   // 医生
+                    }
+                }
             }
         ]
     },
@@ -148,13 +190,13 @@ export const constantRoutes = [
         path: '/statistics',
         component: Layout,
         redirect: '/statistics/index',
-        meta: { roles: [1, 2] }, // 系统管理员和医院管理员可见
+        meta: { roles: [2] }, // 仅医院管理员可见
         children: [
             {
                 path: 'index',
                 name: 'Statistics',
                 component: () => import('@/views/statistics/index'),
-                meta: { title: '统计分析', icon: 'el-icon-data-analysis', roles: [1, 2] }
+                meta: { title: '统计分析', icon: 'el-icon-data-analysis', roles: [2] }
             }
         ]
     },

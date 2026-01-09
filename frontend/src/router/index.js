@@ -211,7 +211,7 @@ export const constantRoutes = [
                 path: 'index',
                 name: 'ai',
                 component: () => import('@/views/ai/index'),
-                meta: { title: 'AI智能助手', icon: 'el-icon-robot', roles: [1, 2, 3] }
+                meta: { title: 'AI智能助手', icon: 'el-icon-cpu', roles: [1, 2, 3] }
             }
         ]
     },

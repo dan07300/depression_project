@@ -660,7 +660,9 @@ export default {
 
   .header {
     margin-bottom: 20px;
-    
+    display: flex;                 /* 1. 启用弹性布局 */
+    justify-content: space-between; /* 2. 两端对齐：左边是标题，右边是按钮 */
+    align-items: center;           /* 3. 垂直居中对齐 */
     h2 {
       margin: 0;
       font-size: 20px;

@@ -2,6 +2,10 @@
   <div class="dashboard-container">
     <div class="welcome-banner">
       <h1>欢迎使用青少年心理健康促进管理平台</h1>
+      <div v-if="userInfo && userInfo.roleType === 2 && userInfo.cohortName" class="hospital-info">
+        <i class="el-icon-office-building"></i>
+        <span>当前所属:{{ userInfo.cohortName }}</span>
+      </div>
     </div>
 
     <div class="system-description">
@@ -34,7 +38,7 @@
     </div>
 
     <div class="kpi-cards">
-      <el-card class="kpi-card blue">
+      <el-card v-if="userInfo && userInfo.roleType === 1" class="kpi-card blue">
         <div class="kpi-icon">
           <i class="el-icon-office-building"></i>
         </div>
@@ -43,13 +47,22 @@
           <div class="kpi-value">{{ dashboardData.hospitalCount || 0 }}</div>
         </div>
       </el-card>
-      <el-card class="kpi-card green">
+      <el-card v-if="userInfo && userInfo.roleType === 1" class="kpi-card green">
         <div class="kpi-icon">
           <i class="el-icon-user"></i>
         </div>
         <div class="kpi-content">
           <div class="kpi-label">用户总数</div>
           <div class="kpi-value">{{ dashboardData.userCount || 0 }}</div>
+        </div>
+      </el-card>
+      <el-card v-if="userInfo && userInfo.roleType === 2" class="kpi-card green">
+        <div class="kpi-icon">
+          <i class="el-icon-user"></i>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-label">本院用户</div>
+          <div class="kpi-value">{{ dashboardData.hospitalUserCount || 0 }}</div>
         </div>
       </el-card>
       <el-card class="kpi-card orange">
@@ -94,9 +107,13 @@
 <script>
 import { getDashboardData } from '@/api'
 import * as echarts from 'echarts'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Dashboard',
+  computed: {
+    ...mapGetters(['userInfo'])
+  },
   data() {
     return {
       dashboardData: {}
@@ -108,7 +125,8 @@ export default {
   methods: {
     async fetchData() {
       try {
-        const response = await getDashboardData()
+        const userId = this.userInfo?.id || null
+        const response = await getDashboardData(userId)
         this.dashboardData = response.data || {}
         this.$nextTick(() => {
           this.initRiskChart()
@@ -230,6 +248,20 @@ export default {
     h1 {
       margin: 0;
       font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .hospital-info {
+      margin-top: 10px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+
+      i {
+        font-size: 18px;
+      }
     }
   }
 
@@ -277,7 +309,7 @@ export default {
 
   .kpi-cards {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
 

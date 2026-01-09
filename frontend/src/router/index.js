@@ -34,13 +34,13 @@ export const constantRoutes = [
         path: '/hospital',
         component: Layout,
         redirect: '/hospital/list',
-        // 注意：这里删除了 name 和 meta，只保留 children
+        meta: { roles: [1] }, // 仅系统管理员可见
         children: [
             {
                 path: 'list',
                 name: 'HospitalList',
                 component: () => import('@/views/hospital/index'),
-                meta: { title: '医院管理', icon: 'el-icon-office-building' }
+                meta: { title: '医院管理', icon: 'el-icon-office-building', roles: [1] }
             }
         ]
     },
@@ -48,12 +48,13 @@ export const constantRoutes = [
         path: '/hospital-admin',
         component: Layout,
         redirect: '/hospital-admin/list',
+        meta: { roles: [1] }, // 仅系统管理员可见
         children: [
             {
                 path: 'list',
                 name: 'HospitalAdminList',
                 component: () => import('@/views/hospital-admin/index'),
-                meta: { title: '医院管理员', icon: 'el-icon-user' }
+                meta: { title: '医院管理员', icon: 'el-icon-user', roles: [1] }
             }
         ]
     },
@@ -61,12 +62,13 @@ export const constantRoutes = [
         path: '/doctor',
         component: Layout,
         redirect: '/doctor/list',
+        meta: { roles: [1, 2] }, // 系统管理员和医院管理员可见
         children: [
             {
                 path: 'list',
                 name: 'DoctorList',
                 component: () => import('@/views/doctor/index'),
-                meta: { title: '所有医生', icon: 'el-icon-user-solid' }
+                meta: { title: '医生管理', icon: 'el-icon-user-solid', roles: [1, 2] }
             }
         ]
     },
@@ -74,12 +76,14 @@ export const constantRoutes = [
         path: '/patient',
         component: Layout,
         redirect: '/patient/list',
+        // 系统管理员、医院管理员、医生均可见
+        meta: { roles: [1, 2, 3] },
         children: [
             {
                 path: 'list',
                 name: 'PatientList',
                 component: () => import('@/views/patient/index'),
-                meta: { title: '所有病人', icon: 'el-icon-user' }
+                meta: { title: '病人管理', icon: 'el-icon-user', roles: [1, 2, 3] }
             }
         ]
     },
@@ -87,12 +91,14 @@ export const constantRoutes = [
         path: '/warning',
         component: Layout,
         redirect: '/warning/list',
+        // 系统管理员、医院管理员、医生均可见
+        meta: { roles: [1, 2, 3] },
         children: [
             {
                 path: 'list',
                 name: 'WarningList',
                 component: () => import('@/views/warning/index'),
-                meta: { title: '预警管理', icon: 'el-icon-warning' }
+                meta: { title: '预警管理', icon: 'el-icon-warning', roles: [1, 2, 3] }
             }
         ]
     },
@@ -100,12 +106,13 @@ export const constantRoutes = [
         path: '/permission',
         component: Layout,
         redirect: '/permission/tree',
+        meta: { roles: [1] }, // 仅系统管理员可见
         children: [
             {
                 path: 'tree',
                 name: 'PermissionTree',
                 component: () => import('@/views/permission/index'),
-                meta: { title: '权限管理', icon: 'el-icon-lock' }
+                meta: { title: '权限管理', icon: 'el-icon-lock', roles: [1] }
             }
         ]
     },
@@ -113,12 +120,13 @@ export const constantRoutes = [
         path: '/scale',
         component: Layout,
         redirect: '/scale/question',
+        meta: { roles: [1] }, // 仅系统管理员可见
         children: [
             {
                 path: 'question',
                 name: 'ScaleQuestion',
                 component: () => import('@/views/scale/index'),
-                meta: { title: '量表管理', icon: 'el-icon-document' }
+                meta: { title: '量表管理', icon: 'el-icon-document', roles: [1] }
             }
         ]
     },
@@ -126,29 +134,45 @@ export const constantRoutes = [
         path: '/user',
         component: Layout,
         redirect: '/user/list',
+        meta: { roles: [1] }, // 仅系统管理员可见
         children: [
             {
                 path: 'list',
                 name: 'UserList',
                 component: () => import('@/views/user/index'),
-                meta: { title: '所有用户', icon: 'el-icon-user' }
+                meta: { title: '所有用户', icon: 'el-icon-user', roles: [1] }
+            }
+        ]
+    },
+    {
+        path: '/statistics',
+        component: Layout,
+        redirect: '/statistics/index',
+        meta: { roles: [1, 2] }, // 系统管理员和医院管理员可见
+        children: [
+            {
+                path: 'index',
+                name: 'Statistics',
+                component: () => import('@/views/statistics/index'),
+                meta: { title: '统计分析', icon: 'el-icon-data-analysis', roles: [1, 2] }
             }
         ]
     },
     //AI智能助手
-{
-    path: '/ai',
-    component: Layout,
-    redirect: '/ai/index',
-    children: [
-      {
-        path: 'index',
-        name: 'ai',
-        component: () => import('@/views/ai/index'), // 对应你的view组件路径
-        meta: { title: 'AI智能助手', icon: 'el-icon-robot' } // 菜单名称+图标
-      }
-    ]
-  },
+    {
+        path: '/ai',
+        component: Layout,
+        redirect: '/ai/index',
+        meta: { roles: [1, 2, 3] }, // 系统管理员、医院管理员、医生可见
+        children: [
+            {
+                path: 'index',
+                name: 'ai',
+                component: () => import('@/views/ai/index'),
+                meta: { title: 'AI智能助手', icon: 'el-icon-robot', roles: [1, 2, 3] }
+            }
+        ]
+    },
     // --- 修复结束 ---
 
     {

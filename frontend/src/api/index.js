@@ -18,10 +18,11 @@ export function changePassword(userId, data) {
 }
 
 // 首页统计
-export function getDashboardData() {
+export function getDashboardData(userId) {
   return request({
     url: '/dashboard',
-    method: 'get'
+    method: 'get',
+    params: userId ? { userId } : {}
   })
 }
 

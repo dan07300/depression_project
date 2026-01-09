@@ -20,8 +20,11 @@ public class DashboardVO implements Serializable {
     @ApiModelProperty("医院数量")
     private Long hospitalCount;
 
-    @ApiModelProperty("用户总数")
+    @ApiModelProperty("用户总数（系统管理员）")
     private Long userCount;
+
+    @ApiModelProperty("本院用户数（医院管理员）")
+    private Long hospitalUserCount;
 
     @ApiModelProperty("预警总数")
     private Long warningCount;

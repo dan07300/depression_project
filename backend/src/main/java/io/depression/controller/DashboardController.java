@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -23,9 +24,9 @@ public class DashboardController {
 
     @ApiOperation(value = "获取首页统计数据", notes = "获取首页的统计数据和图表数据")
     @GetMapping
-    public Result<DashboardVO> getDashboardData() {
+    public Result<DashboardVO> getDashboardData(@RequestParam(required = false) Long userId) {
         try {
-            DashboardVO data = dashboardService.getDashboardData();
+            DashboardVO data = dashboardService.getDashboardData(userId);
             return Result.success(data);
         } catch (Exception e) {
             e.printStackTrace();

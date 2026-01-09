@@ -122,6 +122,9 @@ export default {
             email: this.userInfo.email || '',
             gender: this.userInfo.gender !== undefined ? this.userInfo.gender : 1
           }
+
+          // 【新增】同步更新Vuex里的用户信息（关键！）
+          this.$store.commit('UPDATE_USER_INFO', this.userInfo)
         } catch (error) {
           this.$message.error('获取用户信息失败')
         }
@@ -147,7 +150,7 @@ export default {
       try {
         await updateProfile(this.userInfo.id, this.form)
         this.$message.success('保存成功')
-        this.fetchUserInfo()
+        await this.fetchUserInfo() // 重新获取并同步Vuex
       } catch (error) {
         this.$message.error('保存失败')
       }
